@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dino Egg Rescue</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="game-shell">
+    <h1>Dino Egg Rescue</h1>
+    <p class="subtitle">Save the eggs, hatch the babies, build your dino family.</p>
+
+    <div class="hud">
+      <div>Saved: <span id="savedCount">0</span></div>
+      <div>Babies: <span id="babyCount">0</span></div>
+      <div>Lives: <span id="livesCount">3</span></div>
+    </div>
+
+    <canvas id="game" width="900" height="520"></canvas>
+
+    <div class="controls">
+      <button id="startBtn">Start / Restart</button>
+      <span>Move: Arrow Keys or WASD</span>
+      <span>Goal: Touch eggs to rescue them. Every 3 eggs = 1 baby dino joins you.</span>
+    </div>
+
+    <div class="notes">
+      <p><strong>Story idea:</strong> Big Dino saves the eggs before the rocks hit them. When enough eggs are rescued, a baby dino hatches and starts following Big Dino.</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
