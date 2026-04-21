@@ -8,25 +8,48 @@
 </head>
 <body>
   <div class="game-shell">
-    <h1>Dino Egg Rescue</h1>
-    <p class="subtitle">Save the eggs, hatch the babies, build your dino family.</p>
-
-    <div class="hud">
-      <div>Saved: <span id="savedCount">0</span></div>
-      <div>Babies: <span id="babyCount">0</span></div>
-      <div>Lives: <span id="livesCount">3</span></div>
-    </div>
-
-    <canvas id="game" width="900" height="520"></canvas>
-
-    <div class="controls">
+    <div class="topbar">
       <button id="startBtn">Start / Restart</button>
-      <span>Move: Arrow Keys or WASD</span>
-      <span>Goal: Touch eggs to rescue them. Every 3 eggs = 1 baby dino joins you.</span>
+
+      <div class="stat">Saved Eggs: <span id="savedCount">0</span></div>
+      <div class="stat">Babies: <span id="babyCount">0</span></div>
+      <div class="stat">Lives: <span id="livesCount">3</span></div>
+      <div class="stat">Captured Eggs: <span id="capturedEggCount">0</span></div>
+      <div class="stat">Captured Babies: <span id="capturedBabyCount">0</span></div>
+      <div class="stat time">Time: <span id="timeCount">01:30</span></div>
     </div>
 
-    <div class="notes">
-      <p><strong>Story idea:</strong> Big Dino saves the eggs before the rocks hit them. When enough eggs are rescued, a baby dino hatches and starts following Big Dino.</p>
+    <div class="game-wrap">
+      <div class="info-box">
+        <div>🥚 Touch eggs to rescue them.</div>
+        <div>🦖 Every 3 rescued eggs = 1 baby dino.</div>
+        <div>🚚 The hunter comes and captures eggs or babies.</div>
+        <div>❤️ If he takes too many, you lose a life.</div>
+        <div>⌨️ Move with Arrow Keys or WASD.</div>
+      </div>
+
+      <canvas id="game" width="1280" height="720"></canvas>
+    </div>
+
+    <div class="bottom-ui">
+      <div class="timer-card">
+        <div class="label">Hunter Arrives In</div>
+        <div class="value" id="arrivalCount">00:20</div>
+      </div>
+
+      <div class="timer-card">
+        <div class="label">Hunter Stays For</div>
+        <div class="value" id="stayCount">00:16</div>
+      </div>
+
+      <div class="timer-card">
+        <div class="label">Next Raid In</div>
+        <div class="value" id="nextRaidCount">00:20</div>
+      </div>
+
+      <div class="tip-card">
+        <strong>TIP:</strong> Run into the hunter’s front area to scare him away.
+      </div>
     </div>
   </div>
 
