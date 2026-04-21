@@ -11,10 +11,19 @@ const arrivalCountEl = document.getElementById("arrivalCount");
 const stayCountEl = document.getElementById("stayCount");
 const nextRaidCountEl = document.getElementById("nextRaidCount");
 const startBtn = document.getElementById("startBtn");
+const startScreen = document.getElementById("startScreen");
+
+const btnUp = document.getElementById("btnUp");
+const btnDown = document.getElementById("btnDown");
+const btnLeft = document.getElementById("btnLeft");
+const btnRight = document.getElementById("btnRight");
 
 // Images
 const bigDinoImg = new Image();
 bigDinoImg.src = "assets/big_dino.png";
+
+const bigDinoOpenImg = new Image();
+bigDinoOpenImg.src = "assets/big_dino_openjaw.png";
 
 const babyDinoImg = new Image();
 babyDinoImg.src = "assets/baby_dino.png";
@@ -51,7 +60,7 @@ const dino = {
   y: 420,
   w: 120,
   h: 120,
-  speed: 5.2,
+  speed: 6.8, // faster
   dir: 1
 };
 
@@ -62,8 +71,8 @@ let rescuedEggs = 0;
 let lives = 3;
 let totalCapturedEggs = 0;
 let totalCapturedBabies = 0;
-let totalLostEggs = 0;
-let totalLostBabies = 0;
+let raidCapturedEggs = 0;
+let raidCapturedBabies = 0;
 let gameOver = false;
 let win = false;
 let totalTime = 90;
@@ -81,7 +90,7 @@ const raid = {
   countdown: 20,
   activeCountdown: 16,
   nextRaidCountdown: 20,
-  state: "waiting" // waiting, arriving, active, leaving
+  state: "waiting"
 };
 
 const hunter = {
@@ -96,7 +105,7 @@ const hunter = {
   stealCooldown: 0
 };
 
-// Input
+// Input keyboard
 document.addEventListener("keydown", (e) => {
   keys[e.key] = true;
 });
@@ -105,7 +114,46 @@ document.addEventListener("keyup", (e) => {
   keys[e.key] = false;
 });
 
-startBtn.addEventListener("click", startGame);
+// Restart
+if (startBtn) {
+  startBtn.addEventListener("click", () => {
+    startGame();
+  });
+}
+
+// Fullscreen start
+if (startScreen) {
+  startScreen.addEventListener("click", startGameFullscreen);
+  startScreen.addEventListener("touchstart", startGameFullscreen, { passive: true });
+}
+
+// Touch controls
+function bindTouchButton(button, keyName) {
+  if (!button) return;
+
+  const press = (e) => {
+    e.preventDefault();
+    keys[keyName] = true;
+  };
+
+  const release = (e) => {
+    e.preventDefault();
+    keys[keyName] = false;
+  };
+
+  button.addEventListener("touchstart", press, { passive: false });
+  button.addEventListener("touchend", release, { passive: false });
+  button.addEventListener("touchcancel", release, { passive: false });
+
+  button.addEventListener("mousedown", press);
+  button.addEventListener("mouseup", release);
+  button.addEventListener("mouseleave", release);
+}
+
+bindTouchButton(btnUp, "ArrowUp");
+bindTouchButton(btnDown, "ArrowDown");
+bindTouchButton(btnLeft, "ArrowLeft");
+bindTouchButton(btnRight, "ArrowRight");
 
 // Helpers
 function rand(min, max) {
@@ -142,13 +190,45 @@ function worldToScreenX(x) {
   return x - camera.x;
 }
 
+async function startGameFullscreen() {
+  if (startScreen && startScreen.style.display === "none") return;
+
+  const el = document.documentElement;
+
+  try {
+    if (el.requestFullscreen) {
+      await el.requestFullscreen();
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+  } catch (err) {
+    // ignore
+  }
+
+  try {
+    if (screen.orientation && screen.orientation.lock) {
+      await screen.orientation.lock("landscape");
+    }
+  } catch (err) {
+    // ignore
+  }
+
+  if (startScreen) {
+    startScreen.style.display = "none";
+  }
+
+  startGame();
+}
+
 function updateHud() {
-  savedCountEl.textContent = rescuedEggs;
-  babyCountEl.textContent = babies.length;
-  livesCountEl.textContent = lives;
-  capturedEggCountEl.textContent = totalLostEggs + totalCapturedEggs;
-  capturedBabyCountEl.textContent = totalLostBabies + totalCapturedBabies;
-  timeCountEl.textContent = formatTime(totalTime);
+  if (savedCountEl) savedCountEl.textContent = rescuedEggs;
+  if (babyCountEl) babyCountEl.textContent = babies.length;
+  if (livesCountEl) livesCountEl.textContent = lives;
+  if (capturedEggCountEl) capturedEggCountEl.textContent = totalCapturedEggs;
+  if (capturedBabyCountEl) capturedBabyCountEl.textContent = totalCapturedBabies;
+  if (timeCountEl) timeCountEl.textContent = formatTime(totalTime);
+
+  if (!arrivalCountEl || !stayCountEl || !nextRaidCountEl) return;
 
   if (raid.state === "waiting") {
     arrivalCountEl.textContent = formatTime(raid.countdown);
@@ -204,6 +284,8 @@ function resetRaidCycle() {
   raid.countdown = raid.interval;
   raid.activeCountdown = raid.activeTime;
   raid.nextRaidCountdown = raid.interval;
+  raidCapturedEggs = 0;
+  raidCapturedBabies = 0;
   resetHunter();
 }
 
@@ -221,8 +303,8 @@ function startGame() {
   lives = 3;
   totalCapturedEggs = 0;
   totalCapturedBabies = 0;
-  totalLostEggs = 0;
-  totalLostBabies = 0;
+  raidCapturedEggs = 0;
+  raidCapturedBabies = 0;
   gameOver = false;
   win = false;
   totalTime = 90;
@@ -309,6 +391,9 @@ function updateBabies() {
 
     baby.y = clamp(baby.y, 450, 565);
 
+    // babies face the direction we are walking
+    baby.dir = dino.dir;
+
     targetX = baby.x - dino.dir * 62;
     targetY = baby.y + 6;
   });
@@ -371,6 +456,11 @@ function hunterScareZone() {
   };
 }
 
+// roar only while truck is actually on screen / active
+function shouldRoarAtHunter() {
+  return raid.state === "arriving" || raid.state === "active";
+}
+
 function updateHunterAI() {
   if (hunter.stealCooldown > 0) hunter.stealCooldown--;
 
@@ -389,6 +479,7 @@ function updateHunterAI() {
     ) {
       eggs.splice(hunter.targetIndex, 1);
       totalCapturedEggs++;
+      raidCapturedEggs++;
       hunter.stealCooldown = 45;
       spawnEgg();
       updateHud();
@@ -406,6 +497,7 @@ function updateHunterAI() {
     ) {
       babies.splice(hunter.targetIndex, 1);
       totalCapturedBabies++;
+      raidCapturedBabies++;
       hunter.stealCooldown = 45;
       updateHud();
     }
@@ -461,16 +553,9 @@ function updateHunterMovement() {
     hunter.x += hunter.speed + 3;
 
     if (hunter.x > camera.x + canvas.width + 500) {
-      const raidLoot = totalCapturedEggs + totalCapturedBabies;
-      totalLostEggs += totalCapturedEggs;
-      totalLostBabies += totalCapturedBabies;
-
-      if (raidLoot >= 8) {
+      if (raidCapturedEggs + raidCapturedBabies >= 8) {
         lives--;
       }
-
-      totalCapturedEggs = 0;
-      totalCapturedBabies = 0;
 
       if (lives <= 0) {
         gameOver = true;
@@ -605,15 +690,22 @@ function drawHatch() {
 
 function drawBigDino() {
   const sx = worldToScreenX(dino.x);
+
+  // tiny roar bounce
+  const roaring = shouldRoarAtHunter();
+  const jawFrame = Math.floor(frameCount / 18) % 2 === 0; // slower, more natural
+  const currentDinoImg = roaring && jawFrame ? bigDinoOpenImg : bigDinoImg;
+  const roarOffsetY = roaring ? Math.sin(frameCount * 0.18) * 2 : 0;
+
   drawShadow(sx, dino.y, dino.w, dino.h, 0.15);
 
   ctx.save();
   if (dino.dir === -1) {
-    ctx.translate(sx + dino.w, dino.y);
+    ctx.translate(sx + dino.w, dino.y + roarOffsetY);
     ctx.scale(-1, 1);
-    ctx.drawImage(bigDinoImg, 0, 0, dino.w, dino.h);
+    ctx.drawImage(currentDinoImg, 0, 0, dino.w, dino.h);
   } else {
-    ctx.drawImage(bigDinoImg, sx, dino.y, dino.w, dino.h);
+    ctx.drawImage(currentDinoImg, sx, dino.y + roarOffsetY, dino.w, dino.h);
   }
   ctx.restore();
 }
@@ -625,8 +717,10 @@ function drawBabies() {
 
     drawShadow(sx, baby.y, baby.w, baby.h, 0.14);
 
+    const facing = baby.dir || dino.dir;
+
     ctx.save();
-    if (dino.dir === -1) {
+    if (facing === -1) {
       ctx.translate(sx + baby.w, baby.y);
       ctx.scale(-1, 1);
       ctx.drawImage(babyDinoImg, 0, 0, baby.w, baby.h);
@@ -653,7 +747,7 @@ function drawHunterTruck() {
   }
   ctx.restore();
 
-  const eggsToDraw = Math.min(totalCapturedEggs, 10);
+  const eggsToDraw = Math.min(raidCapturedEggs, 10);
   for (let i = 0; i < eggsToDraw; i++) {
     const row = Math.floor(i / 3);
     const col = i % 3;
@@ -662,7 +756,7 @@ function drawHunterTruck() {
     ctx.drawImage(eggImg, ex, ey, 34, 42);
   }
 
-  const babiesToDraw = Math.min(totalCapturedBabies, 6);
+  const babiesToDraw = Math.min(raidCapturedBabies, 6);
   for (let i = 0; i < babiesToDraw; i++) {
     const row = Math.floor(i / 2);
     const col = i % 2;
@@ -734,4 +828,3 @@ function loop() {
 // Boot
 drawScene();
 updateHud();
-startGame();
