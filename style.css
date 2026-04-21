@@ -1,12 +1,22 @@
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
+html,
 body {
   margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  touch-action: manipulation;
   font-family: Arial, sans-serif;
   background: linear-gradient(to bottom, #7dc8f8 0%, #bcecff 100%);
   color: #fff;
+}
+
+body {
+  min-height: 100vh;
+  padding-bottom: 120px;
 }
 
 .game-shell {
@@ -113,6 +123,85 @@ button:hover {
   max-width: 360px;
 }
 
+/* Start screen */
+#startScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  background: linear-gradient(to bottom, #68c9ff 0%, #7cc94a 100%);
+}
+
+.start-card {
+  text-align: center;
+  background: rgba(0, 0, 0, 0.35);
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 30px 26px;
+  max-width: 560px;
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.25);
+}
+
+.start-card h1 {
+  margin: 0 0 12px;
+  font-size: 44px;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.start-card p {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.start-card .start-sub {
+  margin-top: 12px;
+  font-size: 18px;
+  font-weight: 500;
+  opacity: 0.92;
+}
+
+/* Mobile controls */
+.mobile-controls {
+  position: fixed;
+  left: 0;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  width: 100%;
+  display: none;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 999;
+  pointer-events: none;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.right-controls {
+  align-items: flex-end;
+}
+
+.mobile-controls button {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  font-size: 30px;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(3px);
+}
+
+.mobile-controls button:active {
+  background: rgba(255, 255, 255, 0.28);
+}
+
 @media (max-width: 900px) {
   .topbar {
     font-size: 18px;
@@ -127,5 +216,21 @@ button:hover {
     position: static;
     margin-bottom: 12px;
     max-width: none;
+  }
+
+  .mobile-controls {
+    display: flex;
+  }
+
+  body {
+    padding-bottom: 150px;
+  }
+
+  .start-card h1 {
+    font-size: 34px;
+  }
+
+  .start-card p {
+    font-size: 20px;
   }
 }
