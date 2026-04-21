@@ -2,11 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"
+  />
   <title>Dino Egg Rescue</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div id="startScreen">
+    <div class="start-card">
+      <h1>🦖 Dino Egg Rescue</h1>
+      <p>Tap to Play Fullscreen</p>
+      <p class="start-sub">Rescue eggs. Protect baby dinos. Scare off the hunter.</p>
+    </div>
+  </div>
+
   <div class="game-shell">
     <div class="topbar">
       <button id="startBtn">Start / Restart</button>
@@ -23,9 +34,10 @@
       <div class="info-box">
         <div>🥚 Touch eggs to rescue them.</div>
         <div>🦖 Every 3 rescued eggs = 1 baby dino.</div>
-        <div>🚚 The hunter comes and captures eggs or babies.</div>
+        <div>🚚 The hunter captures eggs and babies.</div>
         <div>❤️ If he takes too many, you lose a life.</div>
-        <div>⌨️ Move with Arrow Keys or WASD.</div>
+        <div>⌨️ Desktop: Arrow Keys / WASD</div>
+        <div>📱 Mobile: touch buttons below</div>
       </div>
 
       <canvas id="game" width="1280" height="720"></canvas>
@@ -48,8 +60,20 @@
       </div>
 
       <div class="tip-card">
-        <strong>TIP:</strong> Run into the hunter’s front area to scare him away.
+        <strong>TIP:</strong> Touch the hunter’s front area to scare him away.
       </div>
+    </div>
+  </div>
+
+  <div class="mobile-controls">
+    <div class="control-group left-controls">
+      <button id="btnUp" aria-label="Move Up">⬆️</button>
+      <button id="btnDown" aria-label="Move Down">⬇️</button>
+    </div>
+
+    <div class="control-group right-controls">
+      <button id="btnLeft" aria-label="Move Left">⬅️</button>
+      <button id="btnRight" aria-label="Move Right">➡️</button>
     </div>
   </div>
 
